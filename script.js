@@ -1,117 +1,332 @@
 const canvas = document.getElementById("heroCanvas");
 const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+let W, H;
 
-const centerX = canvas.width / 2;
-const centerY = canvas.height / 2;
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+}
+resize();
+window.addEventListener("resize", resize);
+
 const text = "Valeria Bazan Molero";
-const fontSize = 70;
-const textColor = "#ffffff";
+const fontSizeStart = 70;  // Tamaño texto al inicio (grande)
+const fontSizeFinal = 40;  // Tamaño texto final arriba
 
-// Ocultar menú al inicio
-document.getElementById("menu-icon").style.display = "none";
+// Colores tornasolados (rosas, lilas, naranjas)
+const colorGradientStops = [
+  { offset: 0, color: "#d36fa3" },   // rosa
+  { offset: 0.5, color: "#a471bc" }, // lila
+  { offset: 1, color: "#f78b4f" }    // naranja amanecer
+];
 
-// Configurar fuente y mostrar texto desde el principio
-ctx.font = `${fontSize}px cursive`;
-ctx.fillStyle = textColor;
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
-ctx.fillText(text, centerX, centerY);
+// Crear gradiente para texto y partículas
+function getGradient(ctx, width) {
+  let gradient = ctx.createLinearGradient(0, 0, width, 0);
+  colorGradientStops.forEach(stop => gradient.addColorStop(stop.offset, stop.color));
+  return gradient;
+}
 
-// Esperar 2 segundos y luego lanzar explosión
-setTimeout(() => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillText(text + ".", centerX, centerY);
-  createExplosion(centerX, centerY);
-}, 2000);
-
-// 🎇 Generar partículas
+// Variables para animación
 let particles = [];
+let animationState = "writing";  // writing, pauseAfterWriting, explosion, filling, fogonazo, finished
+let writeIndex = 0;
+const writeInterval = 70;
+let writtenText = "";
 
-function createExplosion(x, y) {
-  const totalParticles = 1500;
-  for (let i = 0; i < totalParticles; i++) {
-    const angle = Math.random() * 2 * Math.PI;
-    const speed = Math.random() * 8 + 2; // Velocidad variada
-    particles.push({
-      x: x,
-      y: y,
-      dx: Math.cos(angle) * speed,
-      dy: Math.sin(angle) * speed,
-      radius: Math.random() * 3 + 1,
-      alpha: 1,
-      decay: Math.random() * 0.015 + 0.005,
-      color: textColor
-    });
+// Partícula para explosión
+class Particle {
+  constructor(x, y, dx, dy, radius, color) {
+    this.x = x;
+    this.y = y;
+    this.dx = dx;
+    this.dy = dy;
+    this.radius = radius;
+    this.color = color;
+    this.alpha = 1;
+    this.decay = Math.random() * 0.004 + 0.001;  // decaimiento alpha
   }
-  animateExplosion();
+  update() {
+    this.x += this.dx;
+    this.y += this.dy;
+
+    // Rebote en bordes
+    if (this.x + this.radius > W) {
+      this.x = W - this.radius;
+      this.dx = -this.dx;
+    }
+    if (this.x - this.radius < 0) {
+      this.x = this.radius;
+      this.dx = -this.dx;
+    }
+    if (this.y + this.radius > H) {
+      this.y = H - this.radius;
+      this.dy = -this.dy;
+    }
+    if (this.y - this.radius < 0) {
+      this.y = this.radius;
+      this.dy = -this.dy;
+    }
+
+    // Reducir alpha para desvanecerse lentamente
+    this.alpha -= this.decay;
+    if (this.alpha < 0) this.alpha = 0;
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
 }
 
-// 💥 Animar partículas
+// Dibuja texto centrado
+function drawText(textToDraw, size, yPos) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.font = `${size}px Tangiela, cursive`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  let gradient = getGradient(ctx, W);
+  ctx.fillStyle = gradient;
+  ctx.fillText(textToDraw, W / 2, yPos);
+}
+
+// Animación escritura
+function animateWriting() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.font = `${fontSizeStart}px Tangiela, cursive`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  let gradient = getGradient(ctx, W);
+  ctx.fillStyle = gradient;
+
+  writtenText = text.slice(0, writeIndex);
+  ctx.fillText(writtenText, W / 2, H / 2);
+
+  if (writeIndex < text.length) {
+    writeIndex++;
+    setTimeout(animateWriting, writeInterval);
+  } else {
+    // Después de escribir, añadir punto
+    setTimeout(() => {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillText(text + ".", W / 2, H / 2);
+    }, 100);
+
+    // Pausa 2 segundos antes de iniciar explosión
+    setTimeout(() => {
+      animationState = "explosion";
+      createParticles();
+      requestAnimationFrame(animateExplosion);
+    }, 2100);
+  }
+}
+
+// Crear partículas para explosión
+function createParticles() {
+  particles = [];
+  const centerX = W / 2;
+  const centerY = H / 2;
+  const gradient = getGradient(ctx, W);
+
+  // Creamos un canvas temporal para extraer color de gradiente (approx)
+  let tempCanvas = document.createElement('canvas');
+  tempCanvas.width = W;
+  tempCanvas.height = H;
+  let tempCtx = tempCanvas.getContext('2d');
+  let grad = tempCtx.createLinearGradient(0, 0, W, 0);
+  colorGradientStops.forEach(stop => grad.addColorStop(stop.offset, stop.color));
+  tempCtx.fillStyle = grad;
+  tempCtx.fillRect(0, 0, W, H);
+  let imgData = tempCtx.getImageData(centerX, centerY, 1, 1).data;
+  const color = `rgba(${imgData[0]},${imgData[1]},${imgData[2]},1)`;
+
+  // Generar muchas partículas para llenar el fondo
+  const numParticles = 400; // cantidad grande para llenar fondo
+  for (let i = 0; i < numParticles; i++) {
+    let angle = Math.random() * 2 * Math.PI;
+    let speed = Math.random() * 6 + 2; // velocidades variadas para naturalidad
+    let dx = Math.cos(angle) * speed;
+    let dy = Math.sin(angle) * speed;
+    let radius = Math.random() * 3 + 1.5;
+
+    particles.push(new Particle(centerX, centerY, dx, dy, radius, color));
+  }
+}
+
+// Animar explosión
 function animateExplosion() {
-  let duration = 0;
-  const explosionAnimation = setInterval(() => {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, W, H);
 
-    particles.forEach((p, index) => {
-      ctx.beginPath();
-      ctx.globalAlpha = p.alpha;
-      ctx.fillStyle = p.color;
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fill();
-      p.x += p.dx;
-      p.y += p.dy;
-      p.alpha -= p.decay;
-    });
+  // Dibuja y actualiza partículas
+  particles.forEach(p => {
+    p.update();
+    p.draw(ctx);
+  });
 
-    // Quitar partículas invisibles
-    particles = particles.filter(p => p.alpha > 0);
+  // Cuando las partículas casi desaparezcan (alpha promedio < 0.1), pasamos a llenar el fondo
+  const avgAlpha = particles.reduce((sum, p) => sum + p.alpha, 0) / particles.length;
 
-    ctx.globalAlpha = 1;
-    duration += 16;
-
-    if (duration > 3000) {
-      clearInterval(explosionAnimation);
-      transitionToFinalScene();
-    }
-  }, 16);
+  if (avgAlpha > 0.1) {
+    requestAnimationFrame(animateExplosion);
+  } else {
+    animationState = "filling";
+    requestAnimationFrame(animateFilling);
+  }
 }
 
-// 🧊 Transición suave: derretimiento + nuevo texto
-function transitionToFinalScene() {
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const pixels = imageData.data;
+// Animación llenado con partículas rebotando para cubrir todo el fondo
+function animateFilling() {
+  ctx.clearRect(0, 0, W, H);
 
-  let melt = setInterval(() => {
-    for (let y = canvas.height - 1; y > 0; y--) {
-      for (let x = 0; x < canvas.width; x++) {
-        const i = (y * canvas.width + x) * 4;
-        const iAbove = ((y - 1) * canvas.width + x) * 4;
-        pixels[i] = pixels[iAbove];
-        pixels[i + 1] = pixels[iAbove + 1];
-        pixels[i + 2] = pixels[iAbove + 2];
-        pixels[i + 3] = pixels[iAbove + 3];
-      }
-    }
-    ctx.putImageData(imageData, 0, 0);
-  }, 30);
+  particles.forEach(p => {
+    p.update();
+    p.draw(ctx);
+  });
 
-  // Finalizar transición y mostrar texto superior + menú
-  setTimeout(() => {
-    clearInterval(melt);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.font = `50px cursive`;
-    ctx.fillStyle = textColor;
-    ctx.fillText(text, centerX, 80);
+  // Seguimos mientras al menos 70% tengan alpha > 0.1
+  const visibleCount = particles.filter(p => p.alpha > 0.1).length;
 
-    // Mostrar menú hamburguesa
-    document.getElementById("menu-icon").style.display = "block";
-  }, 3000);
+  if (visibleCount > particles.length * 0.3) {
+    requestAnimationFrame(animateFilling);
+  } else {
+    animationState = "fogonazo";
+    fogonazoStartTime = null;
+    requestAnimationFrame(animateFogonazo);
+  }
 }
 
-// Menú hamburguesa
-document.getElementById("menu-icon").addEventListener("click", () => {
-  document.getElementById("menu").classList.toggle("hidden");
+// Animación fogonazo (destello que limpia pantalla)
+let fogonazoStartTime = null;
+const fogonazoDuration = 1000;
+function animateFogonazo(timestamp) {
+  if (!fogonazoStartTime) fogonazoStartTime = timestamp;
+
+  let elapsed = timestamp - fogonazoStartTime;
+  let progress = elapsed / fogonazoDuration;
+
+  ctx.fillStyle = `rgba(249, 247, 243, ${progress})`; // blanco perlado que aparece
+  ctx.fillRect(0, 0, W, H);
+
+  if (progress < 1) {
+    requestAnimationFrame(animateFogonazo);
+  } else {
+    animationState = "finished";
+    drawFinalState();
+  }
+}
+
+// Dibuja el estado final: texto arriba, menú, carrusel y banner
+function drawFinalState() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Texto arriba centrado
+  ctx.font = `${fontSizeFinal}px Tangiela, cursive`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  let gradient = getGradient(ctx, W);
+  ctx.fillStyle = gradient;
+  ctx.fillText(text, W / 2, 20);
+
+  // Mostrar menú, carrusel y banner
+  document.getElementById("menu-icon").classList.remove("hidden");
+  document.getElementById("carousel-container").classList.remove("hidden");
+  document.getElementById("contact-banner").classList.remove("hidden");
+}
+
+// Inicia la animación
+function startAnimation() {
+  document.getElementById("menu-icon").classList.add("hidden");
+  document.getElementById("carousel-container").classList.add("hidden");
+  document.getElementById("contact-banner").classList.add("hidden");
+
+  animateWriting();
+}
+
+// Carrusel
+
+const images = [
+  "images/imagenes001.png",
+  "images/imagenes002.png",
+  "images/imagenes003.png",
+  "images/imagenes004.png"
+];
+
+let currentIndex = 0;
+let intervalID = null;
+
+function createCarousel() {
+  const carousel = document.getElementById("carousel");
+  carousel.innerHTML = ""; // Limpiar
+
+  // Flechas
+  const leftArrow = document.createElement("button");
+  leftArrow.className = "arrow left";
+  leftArrow.innerHTML = "&#9664;"; // ←
+  carousel.appendChild(leftArrow);
+
+  const rightArrow = document.createElement("button");
+  rightArrow.className = "arrow right";
+  rightArrow.innerHTML = "&#9654;"; // →
+  carousel.appendChild(rightArrow);
+
+  // Imágenes
+  images.forEach((src, i) => {
+    const img = document.createElement("img");
+    img.src = src;
+    if (i === 0) img.classList.add("active");
+    carousel.appendChild(img);
+  });
+
+  leftArrow.addEventListener("click", () => {
+    changeImage(-1);
+    resetInterval();
+  });
+  rightArrow.addEventListener("click", () => {
+    changeImage(1);
+    resetInterval();
+  });
+
+  intervalID = setInterval(() => {
+    changeImage(1);
+  }, 4000);
+}
+
+function changeImage(direction) {
+  const imgs = document.querySelectorAll("#carousel img");
+  imgs[currentIndex].classList.remove("active");
+  currentIndex += direction;
+
+  if (currentIndex < 0) currentIndex = imgs.length - 1;
+  if (currentIndex >= imgs.length) currentIndex = 0;
+
+  imgs[currentIndex].classList.add("active");
+}
+
+function resetInterval() {
+  clearInterval(intervalID);
+  intervalID = setInterval(() => {
+    changeImage(1);
+  }, 4000);
+}
+
+// Menú hamburguesa toggle
+const menuIcon = document.getElementById("menu-icon");
+const menu = document.getElementById("menu");
+menuIcon.addEventListener("click", () => {
+  if (menu.classList.contains("hidden")) {
+    menu.classList.remove("hidden");
+  } else {
+    menu.classList.add("hidden");
+  }
 });
+
+// Lanzar animación principal y crear carrusel cuando termine
+startAnimation();
+createCarousel();

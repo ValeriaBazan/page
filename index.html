@@ -2,29 +2,39 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Valeria Bazan Molero</title>
+  <!-- Fuente Tangiela, la tienes que tener o cargar -->
+  <link href="https://fonts.googleapis.com/css2?family=Tangiela&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Canvas para animación -->
   <canvas id="heroCanvas"></canvas>
 
-  <!-- Menú hamburguesa -->
-  <div id="menu-icon" class="hamburger">
-    <div></div>
-    <div></div>
-    <div></div>
-  </div>
-
-  <!-- Menú desplegable (inicialmente oculto) -->
-  <nav id="menu" class="menu hidden">
-    <ul>
-      <li><a href="#">Inicio</a></li>
-      <li><a href="#">Sobre mí</a></li>
-      <li><a href="#">Proyectos</a></li>
-      <li><a href="#">Contacto</a></li>
-    </ul>
+  <!-- Icono menú hamburguesa -->
+  <div id="menu-icon" class="hidden">&#9776;</div>
+  <nav id="menu" class="hidden">
+    <!-- Aquí puedes poner enlaces -->
+    <a href="#">Inicio</a><br/>
+    <a href="#">Sobre mí</a><br/>
+    <a href="#">Proyectos</a><br/>
+    <a href="#">Contacto</a>
   </nav>
+
+  <!-- Carrusel de imágenes -->
+  <section id="carousel-container" class="hidden">
+    <div id="carousel">
+      <button class="arrow left">&#9664;</button>
+      <button class="arrow right">&#9654;</button>
+      <!-- Imágenes se insertan con JS -->
+    </div>
+  </section>
+
+  <!-- Banner contacto y redes -->
+  <footer id="contact-banner" class="hidden">
+    <p>Contacto: valeria@example.com | Redes sociales: Instagram | LinkedIn | Twitter</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>
