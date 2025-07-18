@@ -3,6 +3,9 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+// Ocultar menú al principio
+document.getElementById("menu-icon").style.display = "none";
+
 let text = "Valeria Bazan Molero";
 let letters = text.split("");
 let currentLetter = 0;
@@ -22,25 +25,34 @@ function writeName() {
     currentLetter++;
     setTimeout(writeName, 200);
   } else {
-    // Espera un poco y lanza punto + explosión
+    // Esperar 2 segundos para leer
     setTimeout(() => {
-      ctx.fillText(text + ".", centerX, centerY);
-      explode(centerX, centerY);
-    }, 500);
+      // Aumentar tamaño
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `80px cursive`;
+      ctx.fillText(text, centerX, centerY);
+
+      // Esperar 1 segundo más y lanzar explosión
+      setTimeout(() => {
+        ctx.fillText(text + ".", centerX, centerY);
+        explode(centerX, centerY);
+      }, 1000);
+    }, 2000);
   }
 }
 
-// Paso 2: Explosión de partículas
+// Paso 2: Explosión de partículas mejorada
 let particles = [];
 
 function explode(x, y) {
-  for (let i = 0; i < 300; i++) {
+  for (let i = 0; i < 1000; i++) {
     particles.push({
       x,
       y,
-      radius: Math.random() * 2 + 1,
-      dx: (Math.random() - 0.5) * 5,
-      dy: (Math.random() - 0.5) * 5,
+      radius: Math.random() * 3 + 1,
+      dx: (Math.random() - 0.5) * 10,
+      dy: (Math.random() - 0.5) * 10,
+      color: "rgba(255, 255, 255, 1)",
       alpha: 1
     });
   }
@@ -48,23 +60,27 @@ function explode(x, y) {
 }
 
 function animateParticles() {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${p.alpha})`;
-    ctx.fill();
-    p.x += p.dx;
-    p.y += p.dy;
-    p.alpha -= 0.01;
-  });
-  particles = particles.filter(p => p.alpha > 0);
-  if (particles.length > 0) {
-    requestAnimationFrame(animateParticles);
-  } else {
-    meltCanvas();
-  }
+  let explosionDuration = 0;
+  let animation = setInterval(() => {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+      p.alpha -= 0.005;
+    });
+
+    explosionDuration += 1;
+    if (explosionDuration > 180) {
+      clearInterval(animation);
+      meltCanvas();
+    }
+  }, 16);
 }
 
 // Paso 3: "Derretir" la pantalla
@@ -86,16 +102,20 @@ function meltCanvas() {
     ctx.putImageData(imageData, 0, 0);
   }, 30);
 
-  // Detener y mostrar texto final
+  // Final después del "derretido"
   setTimeout(() => {
     clearInterval(melt);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = `50px cursive`;
+    ctx.fillStyle = "#ffffff";
     ctx.fillText("Valeria Bazan Molero", centerX, 80);
+
+    // Mostrar menú hamburguesa
+    document.getElementById("menu-icon").style.display = "block";
   }, 3000);
 }
 
-// Iniciar
+// Iniciar animación
 writeName();
 
 // Menú hamburguesa
