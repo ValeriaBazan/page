@@ -3,96 +3,92 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Ocultar menú al principio
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+const text = "Valeria Bazan Molero";
+const fontSize = 70;
+const textColor = "#ffffff";
+
+// Ocultar menú al inicio
 document.getElementById("menu-icon").style.display = "none";
 
-let text = "Valeria Bazan Molero";
-let letters = text.split("");
-let currentLetter = 0;
-let fontSize = 60;
-let centerX = canvas.width / 2;
-let centerY = canvas.height / 2;
+// Configurar fuente y mostrar texto desde el principio
 ctx.font = `${fontSize}px cursive`;
-ctx.fillStyle = "#ffffff";
+ctx.fillStyle = textColor;
 ctx.textAlign = "center";
+ctx.textBaseline = "middle";
+ctx.fillText(text, centerX, centerY);
 
-// Paso 1: Escribir letra por letra
-function writeName() {
-  if (currentLetter < letters.length) {
-    let partialText = letters.slice(0, currentLetter + 1).join("");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillText(partialText, centerX, centerY);
-    currentLetter++;
-    setTimeout(writeName, 200);
-  } else {
-    // Esperar 2 segundos para leer
-    setTimeout(() => {
-      // Aumentar tamaño
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = `80px cursive`;
-      ctx.fillText(text, centerX, centerY);
+// Esperar 2 segundos y luego lanzar explosión
+setTimeout(() => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillText(text + ".", centerX, centerY);
+  createExplosion(centerX, centerY);
+}, 2000);
 
-      // Esperar 1 segundo más y lanzar explosión
-      setTimeout(() => {
-        ctx.fillText(text + ".", centerX, centerY);
-        explode(centerX, centerY);
-      }, 1000);
-    }, 2000);
-  }
-}
-
-// Paso 2: Explosión de partículas mejorada
+// 🎇 Generar partículas
 let particles = [];
 
-function explode(x, y) {
-  for (let i = 0; i < 1000; i++) {
+function createExplosion(x, y) {
+  const totalParticles = 1500;
+  for (let i = 0; i < totalParticles; i++) {
+    const angle = Math.random() * 2 * Math.PI;
+    const speed = Math.random() * 8 + 2; // Velocidad variada
     particles.push({
-      x,
-      y,
+      x: x,
+      y: y,
+      dx: Math.cos(angle) * speed,
+      dy: Math.sin(angle) * speed,
       radius: Math.random() * 3 + 1,
-      dx: (Math.random() - 0.5) * 10,
-      dy: (Math.random() - 0.5) * 10,
-      color: "rgba(255, 255, 255, 1)",
-      alpha: 1
+      alpha: 1,
+      decay: Math.random() * 0.015 + 0.005,
+      color: textColor
     });
   }
-  animateParticles();
+  animateExplosion();
 }
 
-function animateParticles() {
-  let explosionDuration = 0;
-  let animation = setInterval(() => {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+// 💥 Animar partículas
+function animateExplosion() {
+  let duration = 0;
+  const explosionAnimation = setInterval(() => {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    particles.forEach(p => {
+    particles.forEach((p, index) => {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.globalAlpha = p.alpha;
       ctx.fillStyle = p.color;
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
       ctx.fill();
       p.x += p.dx;
       p.y += p.dy;
-      p.alpha -= 0.005;
+      p.alpha -= p.decay;
     });
 
-    explosionDuration += 1;
-    if (explosionDuration > 180) {
-      clearInterval(animation);
-      meltCanvas();
+    // Quitar partículas invisibles
+    particles = particles.filter(p => p.alpha > 0);
+
+    ctx.globalAlpha = 1;
+    duration += 16;
+
+    if (duration > 3000) {
+      clearInterval(explosionAnimation);
+      transitionToFinalScene();
     }
   }, 16);
 }
 
-// Paso 3: "Derretir" la pantalla
-function meltCanvas() {
-  let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  let pixels = imageData.data;
+// 🧊 Transición suave: derretimiento + nuevo texto
+function transitionToFinalScene() {
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const pixels = imageData.data;
 
   let melt = setInterval(() => {
     for (let y = canvas.height - 1; y > 0; y--) {
       for (let x = 0; x < canvas.width; x++) {
-        let i = (y * canvas.width + x) * 4;
-        let iAbove = ((y - 1) * canvas.width + x) * 4;
+        const i = (y * canvas.width + x) * 4;
+        const iAbove = ((y - 1) * canvas.width + x) * 4;
         pixels[i] = pixels[iAbove];
         pixels[i + 1] = pixels[iAbove + 1];
         pixels[i + 2] = pixels[iAbove + 2];
@@ -102,21 +98,18 @@ function meltCanvas() {
     ctx.putImageData(imageData, 0, 0);
   }, 30);
 
-  // Final después del "derretido"
+  // Finalizar transición y mostrar texto superior + menú
   setTimeout(() => {
     clearInterval(melt);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = `50px cursive`;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText("Valeria Bazan Molero", centerX, 80);
+    ctx.fillStyle = textColor;
+    ctx.fillText(text, centerX, 80);
 
     // Mostrar menú hamburguesa
     document.getElementById("menu-icon").style.display = "block";
   }, 3000);
 }
-
-// Iniciar animación
-writeName();
 
 // Menú hamburguesa
 document.getElementById("menu-icon").addEventListener("click", () => {
