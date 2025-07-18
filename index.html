@@ -3,39 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Valeria Bazan Molero</title>
-  <!-- Fuente Tangiela, la tienes que tener o cargar -->
-  <link href="https://fonts.googleapis.com/css2?family=Tangiela&display=swap" rel="stylesheet" />
+  <title>Valeria Bazán Molero</title>
+
+  <!-- Enlazar el CSS -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Fuente Tangiela se carga desde CSS -->
 </head>
 <body>
-  <!-- Canvas para animación -->
-  <canvas id="heroCanvas"></canvas>
 
-  <!-- Icono menú hamburguesa -->
-  <div id="menu-icon" class="hidden">&#9776;</div>
-  <nav id="menu" class="hidden">
-    <!-- Aquí puedes poner enlaces -->
-    <a href="#">Inicio</a><br/>
-    <a href="#">Sobre mí</a><br/>
-    <a href="#">Proyectos</a><br/>
-    <a href="#">Contacto</a>
+  <!-- Canvas para la animación -->
+  <canvas id="animationCanvas"></canvas>
+
+  <!-- Título fijo arriba (oculto inicialmente) -->
+  <div id="title-text">Valeria Bazán Molero</div>
+
+  <!-- Menú hamburguesa -->
+  <div id="menu-icon" tabindex="0" aria-label="Menú principal" role="button" aria-expanded="false" aria-controls="menu">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+
+  <!-- Menú desplegable (oculto inicialmente) -->
+  <nav id="menu" aria-hidden="true">
+    <a href="#about">Sobre mí</a>
+    <a href="#portfolio">Portafolio</a>
+    <a href="#contact">Contacto</a>
   </nav>
 
-  <!-- Carrusel de imágenes -->
-  <section id="carousel-container" class="hidden">
-    <div id="carousel">
-      <button class="arrow left">&#9664;</button>
-      <button class="arrow right">&#9654;</button>
-      <!-- Imágenes se insertan con JS -->
+  <!-- Contenedor carrusel (oculto inicialmente) -->
+  <section id="carousel-container">
+    <div id="carousel" aria-live="polite" aria-atomic="true" aria-label="Carrusel de imágenes">
+      <img src="images/imagen001.png" alt="Imagen 1" class="active" />
+      <img src="images/imagen002.png" alt="Imagen 2" />
+      <img src="images/imagen003.png" alt="Imagen 3" />
+      <img src="images/imagen004.png" alt="Imagen 4" />
     </div>
+    <div id="left-arrow" class="carousel-arrow" role="button" tabindex="0" aria-label="Imagen anterior">&#9654;</div>
+    <div id="right-arrow" class="carousel-arrow" role="button" tabindex="0" aria-label="Imagen siguiente">&#9664;</div>
   </section>
 
-  <!-- Banner contacto y redes -->
-  <footer id="contact-banner" class="hidden">
-    <p>Contacto: valeria@example.com | Redes sociales: Instagram | LinkedIn | Twitter</p>
+  <!-- Banner contacto debajo del carrusel (oculto inicialmente) -->
+  <footer id="contact-banner">
+    <p>Contacto: valeria@example.com | Redes sociales: 
+      <a href="https://twitter.com/valeria" target="_blank" rel="noopener noreferrer" style="color:#f9f7f3; text-decoration: underline;">Twitter</a>, 
+      <a href="https://linkedin.com/in/valeria" target="_blank" rel="noopener noreferrer" style="color:#f9f7f3; text-decoration: underline;">LinkedIn</a>, 
+      <a href="https://instagram.com/valeria" target="_blank" rel="noopener noreferrer" style="color:#f9f7f3; text-decoration: underline;">Instagram</a>
+    </p>
   </footer>
 
+  <!-- Enlace al JS -->
   <script src="script.js"></script>
 </body>
 </html>
