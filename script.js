@@ -1,10 +1,10 @@
-const canvas = document.getElementById("animationCanvas");
+const canvas = document.getElementById("animation-canvas");
 const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let fontSize = Math.min(canvas.width * 0.1, 140);
+let fontSize = Math.min(canvas.width * 0.1, 145); // Más grande el texto
 ctx.font = `${fontSize}px Tangiela`;
 ctx.textAlign = "center";
 ctx.textBaseline = "middle";
@@ -20,11 +20,11 @@ let melted = false;
 let animationFrame;
 
 const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-gradient.addColorStop(0, "#FF8FA3");
-gradient.addColorStop(0.5, "#E09EFF");
-gradient.addColorStop(1, "#F7C873");
+gradient.addColorStop(0, "#FF8FA3");   // Rosa
+gradient.addColorStop(0.5, "#E09EFF"); // Lila
+gradient.addColorStop(1, "#F7C873");   // Naranja
 
-// ---- 1. ANIMACIÓN DEL TEXTO MANUSCRITO ----
+// --- 1. ANIMACION TEXTO ---
 function drawTextFrame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = gradient;
@@ -38,19 +38,24 @@ function drawTextFrame() {
     setTimeout(drawTextFrame, 100);
   } else {
     writingDone = true;
-    setTimeout(startExplosion, 500); // inicia explosión tras el punto
+    setTimeout(startExplosion, 500);
   }
 }
 
-// ---- 2. PARTICULAS Y EXPLOSIÓN ----
+// --- 2. PARTICULAS Y EXPLOSION MÁS DURAS Y TORNASOLADAS ---
 class Particle {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.radius = Math.random() * 4 + 2;
-    this.speedX = (Math.random() - 0.5) * 6;
-    this.speedY = (Math.random() - 0.5) * 6;
+    this.radius = Math.random() * 3 + 3; // Más grandes
+    this.speedX = (Math.random() - 0.5) * 7; // Más velocidad
+    this.speedY = (Math.random() - 0.5) * 7;
     this.opacity = 1;
+    // Color tornasolado: calculamos un color con gradiente para cada partícula
+    const t = Math.random();
+    if (t < 0.33) this.color = "rgba(255,143,163,1)";    // Rosa
+    else if (t < 0.66) this.color = "rgba(224,158,255,1)"; // Lila
+    else this.color = "rgba(247,200,115,1)";             // Naranja
   }
 
   update() {
@@ -60,14 +65,20 @@ class Particle {
     if (this.x <= 0 || this.x >= canvas.width) this.speedX *= -1;
     if (this.y <= 0 || this.y >= canvas.height) this.speedY *= -1;
 
-    this.radius *= 1.02; // Crecen
-    this.opacity -= 0.004;
-    this.opacity = Math.max(this.opacity, 0);
+    // Las partículas crecen lentamente mientras mantienen la opacidad alta
+    this.radius *= 1.01;
+    if (this.opacity > 0.1) {
+      this.opacity -= 0.0015;  // Lenta reducción de opacidad para durar más
+    }
   }
 
   draw() {
     ctx.beginPath();
-    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+    // Se usa el color tornasolado con opacidad variable
+    const rgba = this.color.replace(/1\)$/, `${this.opacity})`);
+    ctx.fillStyle = rgba;
+    ctx.shadowColor = rgba;
+    ctx.shadowBlur = 5;
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fill();
   }
@@ -75,10 +86,12 @@ class Particle {
 
 function startExplosion() {
   explosionStarted = true;
+  particles = [];
 
-  for (let i = 0; i < 500; i++) {
+  for (let i = 0; i < 700; i++) {
+    // Posición inicial: letras (centro) + pequeña dispersión
     const angle = Math.random() * Math.PI * 2;
-    const distance = Math.random() * 50;
+    const distance = Math.random() * 40;
     const x = canvas.width / 2 + Math.cos(angle) * distance;
     const y = canvas.height / 2 + Math.sin(angle) * distance;
     particles.push(new Particle(x, y));
@@ -97,18 +110,23 @@ function animateExplosion() {
     p.draw();
   });
 
-  if (particles.some(p => p.opacity > 0.1)) {
+  // Comprobamos si las partículas siguen visibles y el fondo no está lleno aún
+  if (!explosionComplete) {
+    // Si las partículas casi no tienen opacidad, pasamos a explosión completa
+    const anyVisible = particles.some(p => p.opacity > 0.15);
+    if (!anyVisible) {
+      explosionComplete = true;
+      // Animar 1 segundo más hasta completar llenado
+      setTimeout(() => {
+        startMelting();
+      }, 1000);
+      return;
+    }
     animationFrame = requestAnimationFrame(animateExplosion);
-  } else {
-    explosionComplete = true;
-    setTimeout(() => {
-      cancelAnimationFrame(animationFrame);
-      startMelting();
-    }, 3000); // Espera 3 segundos antes de empezar a derretirse
   }
 }
 
-// ---- 3. DERRETIMIENTO TIPO HELADO ----
+// --- 3. DERRETIMIENTO TIPO HELADO (igual que antes) ---
 function startMelting() {
   function meltFrame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -139,16 +157,20 @@ function startMelting() {
   meltFrame();
 }
 
-// ---- 4. MOSTRAR HOME ----
+// --- 4. MOSTRAR HOME CON COLOR BLANCO PERLA EN TÍTULO ---
 function showHomePage() {
-  document.getElementById("animationCanvas").style.display = "none";
-  document.getElementById("title-text").style.display = "block";
+  canvas.style.display = "none";
+
+  const title = document.getElementById("title-text");
+  title.style.display = "block";
+  title.style.color = "#F5F5F0"; // Blanco perla
+
   document.getElementById("carousel-container").style.display = "flex";
   document.getElementById("contact-banner").style.display = "block";
   document.getElementById("menu-icon").style.display = "block";
 }
 
-// ---- 5. CARRUSEL RESPONSIVE ----
+// --- 5. CARRUSEL RESPONSIVE Y FLECHAS MÁS PEQUEÑAS ---
 let currentIndex = 0;
 const images = document.querySelectorAll(".carousel-image");
 const leftArrow = document.getElementById("left-arrow");
@@ -176,8 +198,7 @@ setInterval(() => {
   updateCarousel(currentIndex);
 }, 4000);
 
-// ---- 6. INICIAR ----
+// --- 6. INICIAR ---
 window.onload = () => {
   drawTextFrame();
 };
-
