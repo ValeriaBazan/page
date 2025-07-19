@@ -4,14 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Valeria Bazán Molero</title>
+
+  <!-- Fuente personalizada -->
+  <link rel="preload" href="./fonts/Tangiela.woff2" as="font" type="font/woff2" crossorigin="anonymous">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Canvas de animación inicial -->
+  <!-- Canvas para animación -->
   <canvas id="animationCanvas"></canvas>
 
-  <!-- Título final -->
+  <!-- Título principal (aparece tras animación) -->
   <h1 id="title-text">Valeria Bazán Molero</h1>
 
   <!-- Menú hamburguesa -->
@@ -21,7 +24,7 @@
     <div></div>
   </div>
 
-  <!-- Carrusel de imágenes (sin flechas) -->
+  <!-- Carrusel de imágenes -->
   <section id="carousel-container" aria-label="Galería de imágenes">
     <img src="./images/imagen001.png" alt="Imagen 1" class="carousel-image active" />
     <img src="./images/imagen002.png" alt="Imagen 2" class="carousel-image" />
@@ -29,13 +32,12 @@
     <img src="./images/imagen004.png" alt="Imagen 4" class="carousel-image" />
   </section>
 
-  <!-- Banner inferior de contacto -->
+  <!-- Banner de contacto -->
   <footer id="contact-banner" role="contentinfo">
     <p>Contacto: valeria@example.com | Instagram | Twitter | LinkedIn</p>
   </footer>
 
-  <!-- Script JS -->
+  <!-- Script principal -->
   <script src="script.js"></script>
 </body>
 </html>
-
