@@ -1,269 +1,188 @@
-/* style.css */
-
-/* Importar la fuente Tangiela desde la carpeta fonts */
+/* === 1. FUENTE === */
 @font-face {
   font-family: 'Tangiela';
-  src: url('./fonts/Tangiela.woff2') format('woff2'),
-       url('./fonts/Tangiela.woff') format('woff');
+  src: url('fonts/Tangiela.woff2') format('woff2'),
+       url('fonts/Tangiela.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
 
+/* === 2. RESETEO GENERAL === */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body, html {
+  width: 100%;
   height: 100%;
-  font-family: 'Tangiela', cursive, sans-serif;
-  background: #f7f4f2; /* Blanco hueso casi perla */
-  color: #333;
+  font-family: 'Tangiela', cursive;
+  background-color: #fdfaf6; /* Blanco perla */
   overflow-x: hidden;
 }
 
-/* Canvas de animación ocupa toda la pantalla */
-#animationCanvas {
+/* === 3. CANVAS (ANIMACIÓN) === */
+canvas {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: #f7f4f2;
-  z-index: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: block;
+  background-color: #fdfaf6;
 }
 
-/* Título fijo arriba, oculto inicialmente */
+/* === 4. TÍTULO FINAL === */
 #title-text {
-  position: fixed;
+  display: none;
+  font-size: 3vw;
+  color: #fdfaf6; /* Blanco perla */
+  position: absolute;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  font-family: 'Tangiela', cursive;
-  font-size: 48px;
-  font-weight: normal;
-  color: white;
   z-index: 20;
-  display: none;
-  user-select: none;
-  text-shadow: 0 0 8px rgba(255,255,255,0.8);
+  text-align: center;
 }
 
-/* Menú hamburguesa */
+/* === 5. MENÚ HAMBURGUESA === */
 #menu-icon {
-  position: fixed;
-  top: 25px;
-  right: 40px; /* No tan a la esquina */
-  width: 35px;
-  height: 30px;
-  cursor: pointer;
-  z-index: 25;
   display: none;
-  flex-direction: column;
-  justify-content: space-between;
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  width: 30px;
+  height: 24px;
+  z-index: 21;
+  cursor: pointer;
 }
 
 #menu-icon span {
   display: block;
   height: 4px;
-  background: white;
+  background-color: #fdfaf6;
+  margin: 5px 0;
   border-radius: 2px;
-  transition: all 0.3s ease;
 }
 
-/* Menú desplegable */
 #menu {
-  position: fixed;
-  top: 65px;
-  right: 40px;
-  background: rgba(255 255 255 / 0.9); /* Blanco perlado semi-transparente */
-  border-radius: 8px;
-  padding: 15px 20px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.1);
-  z-index: 22;
   display: none;
-  min-width: 160px;
-  user-select: none;
-}
-
-#menu.visible {
-  display: block;
+  position: absolute;
+  top: 60px;
+  right: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 15px;
+  z-index: 30;
+  border-radius: 8px;
 }
 
 #menu a {
   display: block;
-  color: #444;
+  color: #555;
   text-decoration: none;
-  font-weight: 600;
-  padding: 8px 0;
-  transition: color 0.3s ease;
+  margin-bottom: 10px;
+  font-size: 16px;
 }
 
-#menu a:hover {
-  color: #d36fa3; /* rosa del tornasolado */
-}
-
-/* Carrusel contenedor */
+/* === 6. CARRUSEL DE IMÁGENES === */
 #carousel-container {
-  position: fixed;
-  top: 90px; /* Debajo del título */
-  left: 0;
-  width: 100%;
-  height: calc(100vh - 140px); /* Ajustado para dejar espacio al banner de contacto */
-  background: transparent;
   display: none;
-  z-index: 10;
+  width: 100%;
+  height: 100vh;
   overflow: hidden;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  z-index: 5;
 }
 
-/* Carrusel imágenes */
 #carousel {
-  position: relative;
-  width: 90%;
+  width: 100%;
   height: 100%;
-  max-height: 600px;
-  overflow: hidden;
-  border-radius: 15px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-  background: white; /* Fondo blanco perlado dentro del carrusel */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
 }
 
 #carousel img {
-  position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
   opacity: 0;
-  transition: opacity 1s ease;
-  border-radius: 15px;
-  user-select: none;
-  pointer-events: none;
+  transition: opacity 1s ease-in-out;
+  z-index: 1;
 }
 
 #carousel img.active {
   opacity: 1;
-  pointer-events: auto;
-  position: relative;
+  z-index: 2;
 }
 
-/* Flechas estilizadas para el carrusel */
+/* Flechas elegantes */
 #left-arrow, #right-arrow {
   position: absolute;
   top: 50%;
   width: 40px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.7);
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(0,0,0,0.15);
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  font-size: 24px;
+  color: #555;
   user-select: none;
-  transform: translateY(-50%);
-  transition: background-color 0.3s ease;
-  z-index: 15;
-}
-
-#left-arrow:hover, #right-arrow:hover {
-  background-color: #d36fa3; /* rosa tornasolado */
-}
-
-#left-arrow {
-  left: 10px;
-}
-
-#right-arrow {
-  right: 10px;
-}
-
-/* Triángulos con CSS para flechas */
-
-#left-arrow::before,
-#right-arrow::before {
-  content: "";
-  display: block;
-  width: 0; 
-  height: 0; 
-  border-style: solid;
 }
 
 #left-arrow::before {
-  border-width: 10px 14px 10px 0;
-  border-color: transparent white transparent transparent;
-  margin-left: 3px;
+  content: '◀';
 }
-
 #right-arrow::before {
-  border-width: 10px 0 10px 14px;
-  border-color: transparent transparent transparent white;
-  margin-right: 3px;
+  content: '▶';
 }
 
-/* Banner contacto debajo del carrusel */
+#left-arrow {
+  left: 20px;
+}
+#right-arrow {
+  right: 20px;
+}
+
+/* === 7. BANNER DE CONTACTO === */
 #contact-banner {
-  position: fixed;
-  bottom: 0;
-  left: 0;
   width: 100%;
-  background: linear-gradient(90deg, #d36fa3, #a471bc, #f78b4f); /* Cenefa tornasolada */
-  color: white;
-  padding: 15px 30px;
-  font-family: 'Tangiela', cursive;
-  font-size: 16px;
-  display: none;
-  z-index: 20;
+  padding: 10px 20px;
   text-align: center;
-  box-shadow: 0 -3px 8px rgba(0,0,0,0.15);
+  background: linear-gradient(90deg, #f78da7, #e09eff, #f7c873);
+  color: white;
+  font-size: 16px;
+  position: relative;
+  z-index: 3;
 }
 
-/* Responsive: Ajustes para móviles y pantallas pequeñas */
+#contact-banner a {
+  color: white;
+  text-decoration: underline;
+  margin-left: 8px;
+}
+
+/* === 8. RESPONSIVE === */
 @media (max-width: 768px) {
   #title-text {
-    font-size: 36px;
-    top: 15px;
+    font-size: 6vw;
   }
 
-  #menu-icon {
-    right: 20px;
-    width: 30px;
-    height: 25px;
-  }
-
-  #menu {
-    right: 20px;
-    padding: 12px 16px;
-    min-width: 140px;
-  }
-
-  #carousel-container {
-    height: calc(100vh - 130px);
-  }
-
-  #carousel {
-    max-height: 400px;
-  }
-
-  #left-arrow, #right-arrow {
-    width: 30px;
-    height: 30px;
-  }
-
-  #left-arrow::before, #right-arrow::before {
-    border-width: 7px 10px 7px 0;
+  #menu a {
+    font-size: 14px;
   }
 
   #contact-banner {
     font-size: 14px;
-    padding: 10px 20px;
   }
 }
 
