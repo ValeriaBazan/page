@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Valeria Bazán Molero</title>
 
-  <!-- Estilos -->
-  <link rel="stylesheet" href="style.css">
+  <!-- Vinculo a CSS -->
+  <link rel="stylesheet" href="style.css" />
 
-  <!-- Fuente Tangiela desde local -->
+  <!-- Fuente personalizada Tangiela -->
   <style>
     @font-face {
       font-family: 'Tangiela';
@@ -21,78 +21,37 @@
 </head>
 <body>
 
-  <!-- Canvas para animación -->
+  <!-- Canvas de animación inicial -->
   <canvas id="animationCanvas"></canvas>
 
-  <!-- Título final -->
+  <!-- Título que aparece tras la animación -->
   <h1 id="title-text">Valeria Bazán Molero</h1>
 
-  <!-- Menú hamburguesa -->
-  <div id="menu-icon" onclick="toggleMenu()">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-  <div id="menu">
-    <a href="#carousel-container">Inicio</a>
-    <a href="#contact-banner">Contacto</a>
-    <!-- Agrega más si deseas -->
+  <!-- Menú tipo hamburguesa -->
+  <div id="menu-icon">
+    <div></div>
+    <div></div>
+    <div></div>
   </div>
 
   <!-- Carrusel de imágenes -->
-  <section id="carousel-container">
-    <div id="carousel">
-      <img src="images/imagen001.png" class="active" alt="Imagen 1" />
+  <div id="carousel-container">
+    <div class="carousel" id="carousel">
+      <img src="images/imagen001.png" alt="Imagen 1" />
       <img src="images/imagen002.png" alt="Imagen 2" />
       <img src="images/imagen003.png" alt="Imagen 3" />
       <img src="images/imagen004.png" alt="Imagen 4" />
-      <div id="left-arrow"></div>
-      <div id="right-arrow"></div>
     </div>
-  </section>
+    <div id="left-arrow">&#10094;</div>
+    <div id="right-arrow">&#10095;</div>
+  </div>
 
   <!-- Banner de contacto -->
-  <footer id="contact-banner">
-    © 2025 Valeria Bazán Molero · 
-    <a href="mailto:valeria@email.com">valeria@email.com</a> · 
-    <a href="https://instagram.com/tu_usuario" target="_blank">Instagram</a> · 
-    <a href="https://linkedin.com/in/tu_usuario" target="_blank">LinkedIn</a>
-  </footer>
+  <div id="contact-banner">
+    <p>Contacto: valeriamolero@email.com | Instagram: @valeriabazan | LinkedIn: /valeriabazan</p>
+  </div>
 
-  <!-- Scripts -->
+  <!-- Script JS -->
   <script src="script.js"></script>
-  <script>
-    // Función del menú
-    function toggleMenu() {
-      const menu = document.getElementById('menu');
-      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    }
-
-    // Carrusel automático
-    const images = document.querySelectorAll("#carousel img");
-    const leftArrow = document.getElementById("left-arrow");
-    const rightArrow = document.getElementById("right-arrow");
-    let current = 0;
-
-    function showSlide(index) {
-      images.forEach((img, i) => {
-        img.classList.toggle("active", i === index);
-      });
-    }
-
-    function nextSlide() {
-      current = (current + 1) % images.length;
-      showSlide(current);
-    }
-
-    function prevSlide() {
-      current = (current - 1 + images.length) % images.length;
-      showSlide(current);
-    }
-
-    rightArrow.addEventListener("click", nextSlide);
-    leftArrow.addEventListener("click", prevSlide);
-    setInterval(nextSlide, 4000); // Cada 4 segundos
-  </script>
 </body>
 </html>
