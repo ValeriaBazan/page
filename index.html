@@ -2,27 +2,28 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Valeria Bazán Molero</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Canvas para animaciones -->
+  <!-- Canvas de animación inicial -->
   <canvas id="animationCanvas"></canvas>
 
-  <!-- Título fijo arriba, oculto al inicio -->
+  <!-- Título final (después de derretimiento) -->
   <h1 id="title-text">Valeria Bazán Molero</h1>
 
   <!-- Menú hamburguesa -->
-  <div id="menu-icon" aria-label="Menú desplegable" role="button" tabindex="0">
+  <div id="menu-icon" aria-label="Menú" role="button" tabindex="0">
     <div></div>
     <div></div>
     <div></div>
   </div>
 
-  <!-- Carrusel -->
+  <!-- Carrusel de imágenes -->
   <section id="carousel-container" aria-label="Galería de imágenes">
+    <!-- Flechas -->
     <svg id="left-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
@@ -37,11 +38,13 @@
     <img src="./images/imagen004.png" alt="Imagen 4" class="carousel-image" />
   </section>
 
-  <!-- Banner de contacto -->
+  <!-- Banner inferior de contacto -->
   <footer id="contact-banner" role="contentinfo">
-    <p>Contacto: valeria@example.com | Redes Sociales: Instagram | Twitter | LinkedIn</p>
+    <p>Contacto: valeria@example.com | Instagram | Twitter | LinkedIn</p>
   </footer>
 
+  <!-- Script JS -->
   <script src="script.js"></script>
 </body>
 </html>
+
