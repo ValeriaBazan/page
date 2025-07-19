@@ -4,24 +4,27 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let fontSize = Math.min(canvas.width * 0.1, 160);
+let fontSize = Math.min(canvas.width * 0.1, 140);
 ctx.font = `${fontSize}px Tangiela`;
 ctx.textAlign = "center";
 ctx.textBaseline = "middle";
 
 const text = "Valeria Bazán Molero.";
 let textIndex = 0;
+let writingDone = false;
 let particles = [];
-let explosionStartTime = null;
+let explosionStarted = false;
+let explosionComplete = false;
 let meltProgress = 0;
+let melted = false;
+let animationFrame;
 
-// Gradiente tornasolado para derretimiento
 const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
 gradient.addColorStop(0, "#FF8FA3");
 gradient.addColorStop(0.5, "#E09EFF");
 gradient.addColorStop(1, "#F7C873");
 
-// ---- 1. ANIMACIÓN TEXTO ----
+// ---- 1. ANIMACIÓN DEL TEXTO MANUSCRITO ----
 function drawTextFrame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = gradient;
@@ -34,27 +37,30 @@ function drawTextFrame() {
     textIndex++;
     setTimeout(drawTextFrame, 100);
   } else {
-    explosionStartTime = Date.now();
-    setTimeout(startExplosion, 300);
+    writingDone = true;
+    setTimeout(startExplosion, 500);
   }
 }
 
-// ---- 2. PARTÍCULAS ----
+// ---- 2. PARTICULAS Y EXPLOSIÓN ----
 class Particle {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.radius = Math.random() * 3 + 2.5;
-    this.speedX = (Math.random() - 0.5) * 8;
-    this.speedY = (Math.random() - 0.5) * 8;
+    this.radius = Math.random() * 6 + 3;
+    this.speedX = (Math.random() - 0.5) * 12;
+    this.speedY = (Math.random() - 0.5) * 12;
     this.opacity = 1;
-    const colors = ["#FF8FA3", "#E09EFF", "#F7C873"];
-    this.color = colors[Math.floor(Math.random() * colors.length)];
+    this.hue = Math.random() * 360;
   }
 
   update() {
     this.x += this.speedX;
     this.y += this.speedY;
+
+    if (this.x <= 0 || this.x >= canvas.width) this.speedX *= -1;
+    if (this.y <= 0 || this.y >= canvas.height) this.speedY *= -1;
+
     this.radius *= 1.01;
     this.opacity -= 0.01;
     this.opacity = Math.max(this.opacity, 0);
@@ -62,28 +68,29 @@ class Particle {
 
   draw() {
     ctx.beginPath();
-    ctx.fillStyle = this.color;
-    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${this.opacity})`;
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.globalAlpha = 1;
   }
 }
 
 function startExplosion() {
-  for (let i = 0; i < 400; i++) {
+  explosionStarted = true;
+
+  for (let i = 0; i < 800; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const distance = Math.random() * 40;
+    const distance = Math.random() * 100;
     const x = canvas.width / 2 + Math.cos(angle) * distance;
     const y = canvas.height / 2 + Math.sin(angle) * distance;
     particles.push(new Particle(x, y));
   }
+
   animateExplosion();
 }
 
 function animateExplosion() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#fdfaf5"; // fondo blanco perla
+  ctx.fillStyle = "#fdfaf5"; // Fondo blanco perla permanente
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   particles.forEach((p) => {
@@ -91,20 +98,37 @@ function animateExplosion() {
     p.draw();
   });
 
+  // Añadir nuevas partículas durante unos segundos
+  if (particles.length < 5000 && explosionStarted) {
+    for (let i = 0; i < 20; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.random() * 80;
+      const x = canvas.width / 2 + Math.cos(angle) * distance;
+      const y = canvas.height / 2 + Math.sin(angle) * distance;
+      particles.push(new Particle(x, y));
+    }
+  }
+
   if (Date.now() - explosionStartTime < 3000) {
-    requestAnimationFrame(animateExplosion);
+    animationFrame = requestAnimationFrame(animateExplosion);
   } else {
+    explosionComplete = true;
+    cancelAnimationFrame(animationFrame);
     startMelting();
   }
 }
 
+let explosionStartTime = 0;
+
 // ---- 3. DERRETIMIENTO ----
 function startMelting() {
+  explosionStartTime = Date.now();
+
   function meltFrame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const waveHeight = 30;
-    const wave = (x) => Math.sin((x + Date.now() / 200) * 0.02) * waveHeight;
+    const waveHeight = 40;
+    const wave = (x) => Math.sin((x + Date.now() / 150) * 0.02) * waveHeight;
 
     ctx.fillStyle = gradient;
     ctx.beginPath();
@@ -116,11 +140,12 @@ function startMelting() {
     ctx.closePath();
     ctx.fill();
 
-    meltProgress += 4;
+    meltProgress += 3;
 
     if (meltProgress < canvas.height) {
       requestAnimationFrame(meltFrame);
     } else {
+      melted = true;
       showHomePage();
     }
   }
@@ -128,7 +153,7 @@ function startMelting() {
   meltFrame();
 }
 
-// ---- 4. MOSTRAR PÁGINA PRINCIPAL ----
+// ---- 4. MOSTRAR HOME ----
 function showHomePage() {
   document.getElementById("animationCanvas").style.display = "none";
   document.getElementById("title-text").style.display = "block";
@@ -137,7 +162,7 @@ function showHomePage() {
   document.getElementById("menu-icon").style.display = "block";
 }
 
-// ---- 5. CARRUSEL AUTOMÁTICO ----
+// ---- 5. CARRUSEL DE IMÁGENES ----
 let currentIndex = 0;
 const images = document.querySelectorAll(".carousel-image");
 
@@ -153,8 +178,7 @@ setInterval(() => {
   updateCarousel(currentIndex);
 }, 4000);
 
-// ---- 6. INICIAR ----
+// ---- 6. INICIO ----
 window.onload = () => {
   drawTextFrame();
 };
-
