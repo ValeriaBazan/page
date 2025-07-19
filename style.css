@@ -15,7 +15,7 @@
 }
 
 /* 3. Canvas de animación */
-#animation-canvas {
+#animationCanvas {
   position: fixed;
   top: 0;
   left: 0;
@@ -34,13 +34,13 @@
   transform: translateX(-50%);
   font-family: 'Tangiela', cursive;
   font-size: 4rem;
-  color: #F5F5F0; /* Blanco perla, sin degradado ni brillo */
-  /* Quitar background-clip y text-fill para color plano */
-  background: none;
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: unset;
-  text-align: center;
+  background: linear-gradient(45deg, #FF8FA3, #E09EFF, #F7C873);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: white; /* Color blanco perla */
   z-index: 20;
+  text-align: center;
+  /* Removido brillo raro */
 }
 
 /* 5. Menú hamburguesa */
@@ -89,18 +89,18 @@
   animation: fadeIn 1s ease-in-out;
 }
 
-/* 7. Flechas del carrusel: más pequeñas y en cada costado */
+/* 7. Flechas del carrusel */
 #left-arrow, #right-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1.8rem; /* Reducido de 3rem */
+  width: 30px;           /* Tamaño fijo para SVG */
+  height: 30px;
   color: #fff;
-  opacity: 0.4;
+  opacity: 0.6;
   cursor: pointer;
   z-index: 30;
   transition: opacity 0.3s;
-  user-select: none;
 }
 
 #left-arrow:hover, #right-arrow:hover {
@@ -108,11 +108,11 @@
 }
 
 #left-arrow {
-  left: 15px; /* Más pegado a la izquierda */
+  left: 10px;
 }
 
 #right-arrow {
-  right: 15px; /* Más pegado a la derecha */
+  right: 10px;
 }
 
 /* 8. Banner de contacto */
