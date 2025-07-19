@@ -2,50 +2,61 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Valeria Bazán Molero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valeria Bazan Molero</title>
+  
+  <!-- Enlace al CSS -->
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Fuente Tangiela desde la carpeta local -->
-  <style>
-    @font-face {
-      font-family: 'Tangiela';
-      src: url('fonts/Tangiela.woff2') format('woff2'),
-           url('fonts/Tangiela.woff') format('woff');
-      font-weight: normal;
-      font-style: normal;
-    }
-  </style>
+  
+  <!-- Fuente Tangiela está cargada vía CSS local -->
 </head>
 <body>
-  <!-- Canvas para animación -->
+
+  <!-- Canvas para animaciones -->
   <canvas id="animation-canvas"></canvas>
 
-  <!-- Título que aparecerá tras animaciones -->
-  <div id="title-text">Valeria Bazán Molero</div>
+  <!-- Título fijo en home, aparece al final de la animación -->
+  <h1 id="title-text">Valeria Bazán Molero</h1>
 
   <!-- Menú hamburguesa -->
-  <div id="menu-icon">
+  <div id="menu-icon" aria-label="Menú">
     <div></div>
     <div></div>
     <div></div>
   </div>
 
-  <!-- Carrusel de imágenes -->
-  <div id="carousel-container">
-    <img src="images/imagen001.png" class="carousel-image active" />
-    <img src="images/imagen002.png" class="carousel-image" />
-    <img src="images/imagen003.png" class="carousel-image" />
-    <img src="images/imagen004.png" class="carousel-image" />
-    <button id="left-arrow" class="arrow">◀</button>
-    <button id="right-arrow" class="arrow">▶</button>
-  </div>
+  <!-- Menú desplegable -->
+  <nav id="menu-content" role="navigation" aria-label="Menú principal">
+    <a href="#home">Home</a>
+    <a href="#about">Sobre mí</a>
+    <a href="#contact">Contacto</a>
+  </nav>
 
-  <!-- Banner de contacto -->
-  <div id="contact-banner">
-    Contacto: valeria@example.com | Instagram: @valeriabazanmolero | LinkedIn
-  </div>
+  <!-- Contenedor carrusel -->
+  <section id="carousel-container" aria-label="Carrusel de imágenes">
+    <img src="images/imagen001.png" alt="Imagen 1" class="carousel-image active" />
+    <img src="images/imagen002.png" alt="Imagen 2" class="carousel-image" />
+    <img src="images/imagen003.png" alt="Imagen 3" class="carousel-image" />
+    <img src="images/imagen004.png" alt="Imagen 4" class="carousel-image" />
 
+    <!-- Flechas para navegación del carrusel -->
+    <div id="left-arrow" class="carousel-arrow" role="button" aria-label="Imagen anterior"></div>
+    <div id="right-arrow" class="carousel-arrow" role="button" aria-label="Imagen siguiente"></div>
+  </section>
+
+  <!-- Banner contacto -->
+  <footer id="contact-banner" aria-label="Información de contacto">
+    <div>
+      Contacto: valeria@example.com | 
+      <a href="https://twitter.com/valeria" target="_blank" rel="noopener noreferrer">Twitter</a> | 
+      <a href="https://instagram.com/valeria" target="_blank" rel="noopener noreferrer">Instagram</a> | 
+      <a href="https://linkedin.com/in/valeria" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
+  </footer>
+
+  <!-- Script JS -->
   <script src="script.js"></script>
+  
 </body>
 </html>
+

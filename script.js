@@ -1,173 +1,307 @@
-const canvas = document.getElementById("animationCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const canvas = document.getElementById('animation-canvas');
+const ctx = canvas.getContext('2d');
 
-let text = "Valeria Bazán Molero.";
-let index = 0;
-let showText = "";
-let writing = true;
-let particles = [];
-let explosionActive = false;
-let particlesFull = false;
-let meltActive = false;
+let W, H;
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Texto y fuente
+const fullText = 'Valeria Bazán Molero.';
+const fontName = 'Tangiela';
+const baseFontSize = 70; // tamaño inicial grande para la escritura
+const textColorStops = ['#FF8FA3', '#E09EFF', '#F7C873']; // tornasolado rosas-lilas-naranjas
+
+// Estado animación
+let currentIndex = 0;   // para animación escritura
+let writeCompleted = false;
+let pointWritten = false;
+let waitAfterWrite = 2000; // ms para esperar tras escribir punto
+let waitAfterFill = 3000;  // ms para esperar antes de derretimiento
+let lastTimestamp = 0;
+
+// Variables partículas
+const particles = [];
+const maxParticles = 250;  // gran cantidad para fondo
+const particleRadius = 5;
+let exploding = false;
+let particlesFilled = false;
+let melting = false;
+
+// Variables control derretimiento
 let meltY = 0;
 
-// Cargar fuente Tangiela
-const tangiela = new FontFace('Tangiela', 'url(fonts/Tangiela.woff2)');
-tangiela.load().then(function(loadedFace) {
-  document.fonts.add(loadedFace);
-  requestAnimationFrame(animate);
-});
-
-// Efecto tornasolado
-function getTornasolColor() {
-  const colors = ['#FF8FA3', '#E09EFF', '#F7C873'];
-  return colors[Math.floor(Math.random() * colors.length)];
+// Función para crear color tornasolado usando gradiente vertical
+function getTornasolColor(y) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, H);
+  gradient.addColorStop(0, textColorStops[0]);
+  gradient.addColorStop(0.5, textColorStops[1]);
+  gradient.addColorStop(1, textColorStops[2]);
+  return gradient;
 }
 
-// Animación de escritura
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (writing) {
-    ctx.font = "77px Tangiela";
-    ctx.fillStyle = getTornasolColor();
-    ctx.textAlign = "center";
-    ctx.fillText(showText, canvas.width / 2, canvas.height / 2);
-
-    if (index < text.length) {
-      showText += text[index];
-      index++;
-    } else {
-      writing = false;
-      setTimeout(() => {
-        startExplosion();
-      }, 800);
-    }
-  } else if (explosionActive) {
-    drawParticles();
-
-    if (particles.length > 500 && !particlesFull) {
-      particlesFull = true;
-      setTimeout(() => {
-        startMelt();
-      }, 1000); // 1 segundo antes de derretir
-    }
-  }
-
-  if (meltActive) {
-    meltEffect();
-  }
-
-  requestAnimationFrame(animate);
-}
-
-// Explosión de partículas
-function startExplosion() {
-  explosionActive = true;
-  for (let i = 0; i < 600; i++) {
-    particles.push(createParticle(canvas.width / 2, canvas.height / 2));
-  }
-}
-
-function createParticle(x, y) {
-  const angle = Math.random() * 2 * Math.PI;
-  const speed = Math.random() * 5 + 2;
-  return {
-    x: x,
-    y: y,
-    radius: Math.random() * 4 + 3,
-    dx: Math.cos(angle) * speed,
-    dy: Math.sin(angle) * speed,
-    color: getTornasolColor(),
-  };
-}
-
-function drawParticles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => {
-    ctx.beginPath();
-    ctx.fillStyle = p.color;
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-    ctx.fill();
-    p.x += p.dx;
-    p.y += p.dy;
-
-    // rebote
-    if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-    if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-  });
-}
-
-// Derretimiento hacia abajo tipo helado
-function startMelt() {
-  explosionActive = false;
-  meltActive = true;
-  meltY = 0;
-}
-
-function meltEffect() {
-  const gradient = ctx.createLinearGradient(0, meltY, 0, meltY + 200);
-  gradient.addColorStop(0, '#FF8FA3');
-  gradient.addColorStop(0.5, '#E09EFF');
-  gradient.addColorStop(1, '#F7C873');
-
+// Función para dibujar texto con efecto tornasolado
+function drawText(text, x, y, fontSize) {
+  ctx.font = `${fontSize}px ${fontName}`;
+  ctx.textBaseline = 'middle';
+  const gradient = getTornasolColor(y);
   ctx.fillStyle = gradient;
+  ctx.fillText(text, x, y);
+}
 
-  for (let i = 0; i < canvas.width; i += 50) {
-    let randomHeight = Math.sin(i * 0.1 + Date.now() * 0.002) * 30 + 100;
+// Variables para escritura progresiva
+function measureTextWidth(text, fontSize) {
+  ctx.font = `${fontSize}px ${fontName}`;
+  return ctx.measureText(text).width;
+}
+
+// Partícula
+class Particle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.radius = particleRadius;
+    this.color = color;
+    this.vx = (Math.random() - 0.5) * 8;
+    this.vy = (Math.random() - 0.5) * 8;
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Rebote en bordes
+    if (this.x + this.radius > W) {
+      this.x = W - this.radius;
+      this.vx *= -1;
+    }
+    if (this.x - this.radius < 0) {
+      this.x = this.radius;
+      this.vx *= -1;
+    }
+    if (this.y + this.radius > H) {
+      this.y = H - this.radius;
+      this.vy *= -1;
+    }
+    if (this.y - this.radius < 0) {
+      this.y = this.radius;
+      this.vy *= -1;
+    }
+  }
+
+  draw() {
+    const gradient = ctx.createRadialGradient(this.x, this.y, this.radius * 0.2, this.x, this.y, this.radius);
+    gradient.addColorStop(0, this.color);
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.moveTo(i, meltY);
-    ctx.quadraticCurveTo(i + 25, meltY + randomHeight, i + 50, meltY);
-    ctx.lineTo(i + 50, canvas.height);
-    ctx.lineTo(i, canvas.height);
-    ctx.closePath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  meltY += 4;
-
-  if (meltY > canvas.height) {
-    meltActive = false;
-    showFinalScreen();
+  grow() {
+    if (this.radius < 30) this.radius += 0.3;
   }
 }
 
-// Mostrar página final con título, menú, carrusel
-function showFinalScreen() {
-  document.getElementById("title-text").style.display = "block";
-  document.getElementById("menu-icon").style.display = "flex";
-  document.getElementById("carousel-container").style.display = "flex";
-  document.getElementById("contact-banner").style.display = "block";
+// Variables para texto animado y su posición
+let displayedText = '';
+let textX, textY;
+function updateTextPosition(fontSize, text) {
+  const textWidth = measureTextWidth(text, fontSize);
+  textX = (W - textWidth) / 2;
+  textY = H / 2;
 }
 
-// Carrusel automático + manual
-const images = document.querySelectorAll(".carousel-image");
-let currentIndex = 0;
+// Estado home final
+let homeVisible = false;
+
+// Función para limpiar canvas con fondo blanco perla o tornasolado según fase
+function clearCanvas(bg = 'white') {
+  if (bg === 'white') {
+    ctx.fillStyle = '#fdfaf6'; // blanco perla
+    ctx.fillRect(0, 0, W, H);
+  } else if (bg === 'tornasolado') {
+    const gradient = ctx.createLinearGradient(0, 0, 0, H);
+    gradient.addColorStop(0, textColorStops[0]);
+    gradient.addColorStop(0.5, textColorStops[1]);
+    gradient.addColorStop(1, textColorStops[2]);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+// Función principal animación
+function animate(timestamp) {
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  clearCanvas('white');
+
+  if (!writeCompleted) {
+    // Animación escritura progresiva
+    const fontSize = baseFontSize + 5; // un poco más grande que antes
+    const interval = 100; // ms entre letra y letra
+
+    if (delta >= interval) {
+      currentIndex++;
+      if (currentIndex > fullText.length) {
+        currentIndex = fullText.length;
+        writeCompleted = true;
+      }
+    }
+
+    displayedText = fullText.substring(0, currentIndex);
+    updateTextPosition(fontSize, displayedText);
+    drawText(displayedText, textX, textY, fontSize);
+
+    if (writeCompleted && !pointWritten && displayedText.endsWith('.')) {
+      pointWritten = true;
+      setTimeout(() => {
+        exploding = true;
+        // Crear partículas al centro con color tornasolado
+        for (let i = 0; i < maxParticles; i++) {
+          particles.push(new Particle(W / 2, H / 2, textColorStops[i % textColorStops.length]));
+        }
+      }, waitAfterWrite);
+    }
+  } else if (exploding && !particlesFilled) {
+    // Dibuja partículas que rebotan y crecen
+    clearCanvas('white');
+    const fontSize = baseFontSize + 5;
+
+    // Letra desaparece progresivamente
+    ctx.globalAlpha = Math.max(1 - particles.length / maxParticles, 0);
+    drawText(fullText, textX, textY, fontSize);
+    ctx.globalAlpha = 1;
+
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+      p.grow();
+    });
+
+    // Cuando las partículas sean suficientemente grandes, consideramos fondo lleno
+    if (particles.length > 0 && particles[0].radius >= 30) {
+      particlesFilled = true;
+      setTimeout(() => {
+        melting = true;
+      }, 1000); // espera 1 segundo antes de derretimiento
+    }
+  } else if (melting) {
+    // Derretimiento tipo helado de arriba a abajo
+    // Primero llena el fondo con tornasolado
+    clearCanvas('tornasolado');
+
+    // Dibujar partículas con derretimiento (bajada en Y)
+    meltY += 3; // velocidad derretimiento
+
+    // Crea un clip para derretimiento
+    ctx.save();
+    ctx.beginPath();
+
+    // Añadimos líneas onduladas para simular derretimiento (efecto helado)
+    const waveAmplitude = 30;
+    const waveLength = 100;
+    ctx.moveTo(0, meltY);
+    for (let x = 0; x <= W; x += 10) {
+      const y = meltY + Math.sin((x / waveLength) * 2 * Math.PI) * waveAmplitude;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+
+    ctx.clip();
+
+    // Relleno tornasolado para la parte derretida
+    const gradient = ctx.createLinearGradient(0, 0, 0, H);
+    gradient.addColorStop(0, textColorStops[0]);
+    gradient.addColorStop(0.5, textColorStops[1]);
+    gradient.addColorStop(1, textColorStops[2]);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.restore();
+
+    if (meltY > H) {
+      // Terminó derretimiento
+      melting = false;
+      homeVisible = true;
+      document.getElementById('title-text').style.display = 'block';
+      document.getElementById('menu-icon').style.display = 'flex';
+      document.getElementById('carousel-container').style.display = 'flex';
+      document.getElementById('contact-banner').style.display = 'block';
+    }
+  }
+
+  if (homeVisible) {
+    // Dibuja fondo tornasolado fijo
+    clearCanvas('tornasolado');
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// Inicia animación
+requestAnimationFrame(animate);
+
+// --- CARRUSEL ---
+
+const carouselImages = document.querySelectorAll('.carousel-image');
+const leftArrow = document.getElementById('left-arrow');
+const rightArrow = document.getElementById('right-arrow');
+let currentImage = 0;
+const totalImages = carouselImages.length;
 
 function showImage(index) {
-  images.forEach((img, i) => {
-    img.classList.toggle("active", i === index);
+  carouselImages.forEach((img, i) => {
+    img.classList.toggle('active', i === index);
   });
 }
 
-document.getElementById("left-arrow").addEventListener("click", () => {
-  currentIndex = (currentIndex - 1 + images.length) % images.length;
-  showImage(currentIndex);
+function nextImage() {
+  currentImage = (currentImage + 1) % totalImages;
+  showImage(currentImage);
+}
+
+function prevImage() {
+  currentImage = (currentImage - 1 + totalImages) % totalImages;
+  showImage(currentImage);
+}
+
+rightArrow.addEventListener('click', () => {
+  nextImage();
+  resetInterval();
+});
+leftArrow.addEventListener('click', () => {
+  prevImage();
+  resetInterval();
 });
 
-document.getElementById("right-arrow").addEventListener("click", () => {
-  currentIndex = (currentIndex + 1) % images.length;
-  showImage(currentIndex);
+let intervalId = setInterval(nextImage, 4000);
+function resetInterval() {
+  clearInterval(intervalId);
+  intervalId = setInterval(nextImage, 4000);
+}
+
+// --- MENÚ HAMBURGUESA ---
+
+const menuIcon = document.getElementById('menu-icon');
+const menuContent = document.getElementById('menu-content');
+
+menuIcon.addEventListener('click', () => {
+  if (menuContent.style.display === 'block') {
+    menuContent.style.display = 'none';
+  } else {
+    menuContent.style.display = 'block';
+  }
 });
-
-setInterval(() => {
-  currentIndex = (currentIndex + 1) % images.length;
-  showImage(currentIndex);
-}, 4000);
-
-
-
 
 
