@@ -15,7 +15,7 @@
 }
 
 /* 3. Canvas de animación */
-#animationCanvas {
+#animation-canvas {
   position: fixed;
   top: 0;
   left: 0;
@@ -34,12 +34,13 @@
   transform: translateX(-50%);
   font-family: 'Tangiela', cursive;
   font-size: 4rem;
-  background: linear-gradient(45deg, #FF8FA3, #E09EFF, #F7C873);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  z-index: 20;
+  color: #F5F5F0; /* Blanco perla, sin degradado ni brillo */
+  /* Quitar background-clip y text-fill para color plano */
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
   text-align: center;
+  z-index: 20;
 }
 
 /* 5. Menú hamburguesa */
@@ -88,17 +89,18 @@
   animation: fadeIn 1s ease-in-out;
 }
 
-/* 7. Flechas del carrusel */
+/* 7. Flechas del carrusel: más pequeñas y en cada costado */
 #left-arrow, #right-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 3rem;
+  font-size: 1.8rem; /* Reducido de 3rem */
   color: #fff;
-  opacity: 0.3;
+  opacity: 0.4;
   cursor: pointer;
   z-index: 30;
   transition: opacity 0.3s;
+  user-select: none;
 }
 
 #left-arrow:hover, #right-arrow:hover {
@@ -106,10 +108,11 @@
 }
 
 #left-arrow {
-  left: 20px;
+  left: 15px; /* Más pegado a la izquierda */
 }
+
 #right-arrow {
-  right: 20px;
+  right: 15px; /* Más pegado a la derecha */
 }
 
 /* 8. Banner de contacto */
