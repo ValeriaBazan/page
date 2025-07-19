@@ -2,56 +2,46 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Valeria Bazán Molero</title>
-
-  <!-- Vinculo a CSS -->
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Fuente personalizada Tangiela -->
-  <style>
-    @font-face {
-      font-family: 'Tangiela';
-      src: url('fonts/Tangiela.woff2') format('woff2'),
-           url('fonts/Tangiela.woff') format('woff');
-      font-weight: normal;
-      font-style: normal;
-    }
-  </style>
 </head>
 <body>
 
-  <!-- Canvas de animación inicial -->
+  <!-- Canvas para animaciones -->
   <canvas id="animationCanvas"></canvas>
 
-  <!-- Título que aparece tras la animación -->
+  <!-- Título fijo arriba, oculto al inicio -->
   <h1 id="title-text">Valeria Bazán Molero</h1>
 
-  <!-- Menú tipo hamburguesa -->
-  <div id="menu-icon">
+  <!-- Menú hamburguesa -->
+  <div id="menu-icon" aria-label="Menú desplegable" role="button" tabindex="0">
     <div></div>
     <div></div>
     <div></div>
   </div>
 
-  <!-- Carrusel de imágenes -->
-  <div id="carousel-container">
-    <div class="carousel" id="carousel">
-      <img src="images/imagen001.png" alt="Imagen 1" />
-      <img src="images/imagen002.png" alt="Imagen 2" />
-      <img src="images/imagen003.png" alt="Imagen 3" />
-      <img src="images/imagen004.png" alt="Imagen 4" />
-    </div>
-    <div id="left-arrow">&#10094;</div>
-    <div id="right-arrow">&#10095;</div>
-  </div>
+  <!-- Carrusel -->
+  <section id="carousel-container" aria-label="Galería de imágenes">
+    <svg id="left-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <svg id="right-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <!-- Imágenes del carrusel -->
+    <img src="./images/imagen001.png" alt="Imagen 1" class="carousel-image active" />
+    <img src="./images/imagen002.png" alt="Imagen 2" class="carousel-image" />
+    <img src="./images/imagen003.png" alt="Imagen 3" class="carousel-image" />
+    <img src="./images/imagen004.png" alt="Imagen 4" class="carousel-image" />
+  </section>
 
   <!-- Banner de contacto -->
-  <div id="contact-banner">
-    <p>Contacto: valeriamolero@email.com | Instagram: @valeriabazan | LinkedIn: /valeriabazan</p>
-  </div>
+  <footer id="contact-banner" role="contentinfo">
+    <p>Contacto: valeria@example.com | Redes Sociales: Instagram | Twitter | LinkedIn</p>
+  </footer>
 
-  <!-- Script JS -->
   <script src="script.js"></script>
 </body>
 </html>
