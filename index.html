@@ -2,61 +2,48 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Valeria Bazan Molero</title>
-  
-  <!-- Enlace al CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Valeria Bazán Molero</title>
   <link rel="stylesheet" href="style.css" />
-  
-  <!-- Fuente Tangiela está cargada vía CSS local -->
 </head>
 <body>
 
-  <!-- Canvas para animaciones -->
-  <canvas id="animation-canvas"></canvas>
+  <!-- Canvas de animación inicial -->
+  <canvas id="animationCanvas"></canvas>
 
-  <!-- Título fijo en home, aparece al final de la animación -->
+  <!-- Título final (después de derretimiento) -->
   <h1 id="title-text">Valeria Bazán Molero</h1>
 
   <!-- Menú hamburguesa -->
-  <div id="menu-icon" aria-label="Menú">
+  <div id="menu-icon" aria-label="Menú" role="button" tabindex="0">
     <div></div>
     <div></div>
     <div></div>
   </div>
 
-  <!-- Menú desplegable -->
-  <nav id="menu-content" role="navigation" aria-label="Menú principal">
-    <a href="#home">Home</a>
-    <a href="#about">Sobre mí</a>
-    <a href="#contact">Contacto</a>
-  </nav>
+  <!-- Carrusel de imágenes -->
+  <section id="carousel-container" aria-label="Galería de imágenes">
+    <!-- Flechas -->
+    <svg id="left-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <svg id="right-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
 
-  <!-- Contenedor carrusel -->
-  <section id="carousel-container" aria-label="Carrusel de imágenes">
-    <img src="images/imagen001.png" alt="Imagen 1" class="carousel-image active" />
-    <img src="images/imagen002.png" alt="Imagen 2" class="carousel-image" />
-    <img src="images/imagen003.png" alt="Imagen 3" class="carousel-image" />
-    <img src="images/imagen004.png" alt="Imagen 4" class="carousel-image" />
-
-    <!-- Flechas para navegación del carrusel -->
-    <div id="left-arrow" class="carousel-arrow" role="button" aria-label="Imagen anterior"></div>
-    <div id="right-arrow" class="carousel-arrow" role="button" aria-label="Imagen siguiente"></div>
+    <!-- Imágenes del carrusel -->
+    <img src="./images/imagen001.png" alt="Imagen 1" class="carousel-image active" />
+    <img src="./images/imagen002.png" alt="Imagen 2" class="carousel-image" />
+    <img src="./images/imagen003.png" alt="Imagen 3" class="carousel-image" />
+    <img src="./images/imagen004.png" alt="Imagen 4" class="carousel-image" />
   </section>
 
-  <!-- Banner contacto -->
-  <footer id="contact-banner" aria-label="Información de contacto">
-    <div>
-      Contacto: valeria@example.com | 
-      <a href="https://twitter.com/valeria" target="_blank" rel="noopener noreferrer">Twitter</a> | 
-      <a href="https://instagram.com/valeria" target="_blank" rel="noopener noreferrer">Instagram</a> | 
-      <a href="https://linkedin.com/in/valeria" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-    </div>
+  <!-- Banner inferior de contacto -->
+  <footer id="contact-banner" role="contentinfo">
+    <p>Contacto: valeria@example.com | Instagram | Twitter | LinkedIn</p>
   </footer>
 
   <!-- Script JS -->
   <script src="script.js"></script>
-  
 </body>
 </html>
-
