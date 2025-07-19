@@ -34,13 +34,9 @@
   transform: translateX(-50%);
   font-family: 'Tangiela', cursive;
   font-size: 4rem;
-  background: linear-gradient(45deg, #FF8FA3, #E09EFF, #F7C873);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: white; /* Color blanco perla */
+  color: #f0ebe7; /* Blanco perla para el texto */
   z-index: 20;
   text-align: center;
-  /* Removido brillo raro */
 }
 
 /* 5. Menú hamburguesa */
@@ -94,13 +90,13 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;           /* Tamaño fijo para SVG */
-  height: 30px;
+  font-size: 2rem; /* Reducido de 3rem a 2rem */
   color: #fff;
   opacity: 0.6;
   cursor: pointer;
   z-index: 30;
   transition: opacity 0.3s;
+  user-select: none;
 }
 
 #left-arrow:hover, #right-arrow:hover {
@@ -108,11 +104,11 @@
 }
 
 #left-arrow {
-  left: 10px;
+  left: 10px; /* Más a la izquierda */
 }
 
 #right-arrow {
-  right: 10px;
+  right: 10px; /* Más a la derecha */
 }
 
 /* 8. Banner de contacto */
